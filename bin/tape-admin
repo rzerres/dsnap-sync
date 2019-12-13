@@ -2405,78 +2405,72 @@ case $cmd in
 	fi
 	;;
     ltfs-is-mounted)
+	if ! $quiet; then
+	    printf "${MAGENTA}LTFS tape mount checke\n"
+	fi
 	ltfs_is_mounted
 	if test $? -gt 0; then
 	    exit 1
-	else
-	    if ! $quiet; then
-		printf "${MAGENTA}LTFS Tape is-mounted: ${GREEN}true${NO_COLOR}\n"
-	    fi
 	fi
 	;;
     ltfs-mount)
+	if ! $quiet; then
+	    printf "${MAGENTA}LTFS mount Tape\n"
+	fi
 	ltfs_mount
 	if test $? -gt 0; then
 	    exit 1
-	else
-	    if ! $quiet; then
-		printf "${MAGENTA}LTFS Tape mount: ${GREEN}true${NO_COLOR}\n"
-	    fi
 	fi
        ;;
     ltfs-reformat)
+	if ! $quiet; then
+	    printf "${MAGENTA}LTFS Tape reformat: ${GREEN}%s${NO_COLOR}\n" \
+		   "${volume_name}"
+	fi
 	ltfs_reformat "${volume_name}"
 	if test $? -gt 0; then
 	    return 1
-	else
-	    if ! $quiet; then
-		printf "${MAGENTA}LTFS Tape reformat: ${GREEN}%s${NO_COLOR}\n" \
-		       "${volume_name}"
-	    fi
 	fi
 	;;
     ltfs-umount)
+	if ! $quiet; then
+	    printf "${MAGENTA}LTFS Tape unmount: ${GREEN}true${NO_COLOR}\n"
+	fi
 	ltfs_umount
 	if test $? -gt 0; then
 	    exit 1
-	else
-	    if ! $quiet; then
-		printf "${MAGENTA}LTFS Tape unmount: ${GREEN}true${NO_COLOR}\n"
-	    fi
 	fi
 	;;
     media-change)
+	if ! $quiet; then
+	    if  [ ${#volume_name} -ge 1 ]; then
+		printf "${MAGENTA}Media change in pool: ${GREEN}%s${NO_COLOR} (Volume-Name: ${GREEN}%s${NO_COLOR})\n" \
+		       "${mediapool_name}" "${volume_name}"
+	    else
+		printf "${MAGENTA}Media change in pool: ${GREEN}%s${NO_COLOR}\n" \
+		       "${mediapool_name}"
+	    fi
+	fi
 	media_change $mediapool_name $volume_name
 	if test $? -gt 0; then
 	    return 1
-	else
-	    if ! $quiet; then
-		if  [ ${#volume_name} -ge 1 ]; then
-		    printf "${MAGENTA}Media changed in pool: ${GREEN}%s${NO_COLOR} (Volume-Name: ${GREEN}%s${NO_COLOR})\n" \
-			   "${mediapool_name}" "${volume_name}"
-		else
-		    printf "${MAGENTA}Media changed in pool: ${GREEN}%s${NO_COLOR}\n" \
-			   "${mediapool_name}"
-		fi
-	    fi
 	fi
 	;;
     mount)
-        mount_tape "${mediapool_name}" "${volume_name}"
-	if test $? -gt 0; then
-	    exit 1
-	else
-	    if ! $quiet; then
-		if test ${#volume_name} -ge 1; then
-		    printf "${MAGENTA}Tape ${GREEN}'%s'${MAGENTA} for ${GREEN}'%s'${MAGENTA} mounted${NO_COLOR}\n" \
-			   "${volume_name}" "${mediapool_name}"
-		else
-		    printf "${MAGENTA}Next tape for mediapool ${GREEN}'%s'${MAGENTA} mounted${NO_COLOR}\n" \
-			   "${mediapool_name}"
-		fi
+	if ! $quiet; then
+	    if test ${#volume_name} -ge 1; then
+		printf "${MAGENTA}Mount tape ${GREEN}'%s'${MAGENTA} for ${GREEN}'%s'${NO_COLOR}\n" \
+		       "${volume_name}" "${mediapool_name}"
+	    else
+		printf "${MAGENTA}Mount next tape for mediapool ${GREEN}'%s'${NO_COLOR}\n" \
+		       "${mediapool_name}"
 	    fi
 	fi
-    	;;
+	mount_tape "${mediapool_name}" "${volume_name}"
+	if test $? -gt 0; then
+	    exit 1
+	fi
+	;;
     mtx-exchange)
 	mtx_exchange "${slot_source}" "${slot_target}"
 	exit $?
