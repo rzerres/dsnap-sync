@@ -140,7 +140,7 @@ add_retensiondays_to_retensiondate () {
 	if [ $? -eq 0 ]; then
 	    cmd="jq --monochrome-output --ascii-output '(.MediaPool[] \
 		| select(.Name == \"$mediapool_name\") \
-	    	| .Member[$tape_index] \
+		| .Member[$tape_index] \
 		| .RetensionDate) \
 		|= \"$volume_retensiondate\" ' \
 		${mediapools_json} > $XDG_RUNTIME_DIR/$json_file"
@@ -148,10 +148,10 @@ add_retensiondays_to_retensiondate () {
 	    if [ $? -eq 0 ]; then
 		cp "$XDG_RUNTIME_DIR/$json_file" "$mediapools_json"
 	    else
-	        if [ $verbose -ge 1 ]; then
-	            printf "${RED}Error:${MAGENTA} Can't update RetensionDate ${GREEN}'%s'${MAGENTA} for Tape ${GREEN}'%s'${NO_COLOR}\n" \
-		           "$volume_retensiondate" "$volume_name"
-	        fi
+		if [ $verbose -ge 1 ]; then
+		    printf "${RED}Error:${MAGENTA} Can't update RetensionDate ${GREEN}'%s'${MAGENTA} for Tape ${GREEN}'%s'${NO_COLOR}\n" \
+			   "$volume_retensiondate" "$volume_name"
+		fi
 		return 1
 	    fi
 	else
@@ -294,15 +294,15 @@ get_lastwrite () {
 
 	# select last write date for given volume
 	cmd="jq --monochrome-output --ascii-output ' .MediaPool[] \
-    	    | select(.Name == \"${mediapool_name}\") \
+	    | select(.Name == \"${mediapool_name}\") \
 	    | .Member[] \
-    	    | select(.VolumeName == \"${volume_name}\") \
+	    | select(.VolumeName == \"${volume_name}\") \
 	    | .LastWrite ' \
 	    ${mediapools_json}"
     else
 	# select volume with latest write date
 	cmd="jq --monochrome-output --ascii-output ' .MediaPool[] \
-    	    | select(.Name == \"${mediapool_name}\") \
+	    | select(.Name == \"${mediapool_name}\") \
 	    | .Member \
 	    | map({ \"VolumeName\" : .VolumeName, \"LastWrite\" : ( .LastWrite | scan(\"[0-9]{14}\")) }) \
 	    | sort_by(.LastWrite) \
@@ -312,7 +312,7 @@ get_lastwrite () {
 	volume_name=$(eval $cmd)
 	volume_name=$(echo $volume_name | sed -e 's/"//g')
 	cmd="jq --monochrome-output --ascii-output ' .MediaPool[] \
-    	    | select(.Name == \"${mediapool_name}\") \
+	    | select(.Name == \"${mediapool_name}\") \
 	    | .Member \
 	    | map({ \"VolumeName\" : .VolumeName, \"LastWrite\" : ( .LastWrite | scan(\"[0-9]{14}\")) }) \
 	    | sort_by(.LastWrite) \
@@ -351,9 +351,9 @@ get_mediapolicy () {
     fi
 
     cmd="jq --monochrome-output --ascii-output ' .MediaPool[] \
-    	    | select(.Name == \"${mediapool_name}\") \
+	    | select(.Name == \"${mediapool_name}\") \
 	    | .Member[] \
-    	    | select(.VolumeName == \"${volume_name}\") \
+	    | select(.VolumeName == \"${volume_name}\") \
 	    | .MediaPolicy ' \
 	    ${mediapools_json}"
     volume_mediapolicy=$(eval $cmd)
@@ -444,8 +444,8 @@ get_mediapool_retensiondays () {
     if [ ${#mediapool_name} -ge 1 ]; then
 	# select default retension days for given pool
 	cmd="jq --monochrome-output --ascii-output ' .MediaPool[] \
-    	    | select(.Name == \"${mediapool_name}\") \
-    	    | .DefaultRetensionDays ' \
+	    | select(.Name == \"${mediapool_name}\") \
+	    | .DefaultRetensionDays ' \
 	    ${mediapools_json}"
     fi
     mediapool_defaultretensiondays=$(eval $cmd)
@@ -483,8 +483,8 @@ get_poolmember () {
     fi
 
     cmd="jq --monochrome-output --ascii-output '.MediaPool[] \
-    	    | select(.Name == \"${mediapool_name}\") \
-    	    | .Member[].VolumeName' \
+	    | select(.Name == \"${mediapool_name}\") \
+	    | .Member[].VolumeName' \
 	    ${mediapools_json}"
     poolmember=$(eval $cmd)
     poolmember=$(echo $poolmember | sed -e 's/"//g')
@@ -496,16 +496,16 @@ get_poolmember () {
 
     i=0
     for i in $poolmember ; do
-        if [ "$volume_name" = "any" ]; then
-            volume_name=$i
+	if [ "$volume_name" = "any" ]; then
+	    volume_name=$i
 	    if [ $verbose -ge 2 ]; then
 		printf "${MAGENTA}selecting first volume_name ${GREEN}'%s'${MAGENTA} from media-pool ${GREEN}'%s'${NO_COLOR}\n" \
 		       "$i" "$mediapool_name"
 	    fi
 	    return 0
 	    break
-        fi
-        if test "$i" = "${volume_name}"; then
+	fi
+	if test "$i" = "${volume_name}"; then
 	    if [ $verbose -ge 2 ]; then
 		printf "${MAGENTA}volume_name ${GREEN}'%s'${MAGENTA} is member of media-pool ${GREEN}'%s'${NO_COLOR}\n" \
 		       "$i" "$mediapool_name"
@@ -541,7 +541,7 @@ get_poolmember_next () {
 	return 1
 
     cmd="jq --monochrome-output --ascii-output ' .MediaPool[] \
-    	    | select(.Name == \"${mediapool_name}\") \
+	    | select(.Name == \"${mediapool_name}\") \
 	    | .Member \
 	    | map({ \"VolumeName\" : .VolumeName, \"LastWrite\" : ( .LastWrite | scan(\"[0-9]{14}\")) }) \
 	    | sort_by(.LastWrite) \
@@ -601,9 +601,9 @@ get_slot () {
 	return 1
 
     cmd="jq --monochrome-output --ascii-output ' .MediaPool[] \
-    	    | select(.Name == \"${mediapool_name}\") \
+	    | select(.Name == \"${mediapool_name}\") \
 	    | .Member[] \
-    	    | select(.VolumeName == \"${volume_name}\") \
+	    | select(.VolumeName == \"${volume_name}\") \
 	    | .Slot ' \
 	    ${mediapools_json}"
     volume_slot=$(eval $cmd)
@@ -639,9 +639,9 @@ get_retensiondate () {
 	return 1
 
     cmd="jq --monochrome-output --ascii-output '(.MediaPool[] \
-    	    | select(.Name == \"${mediapool_name}\") \
+	    | select(.Name == \"${mediapool_name}\") \
 	    | .Member[] \
-    	    | select(.VolumeName == \"${volume_name}\")) \
+	    | select(.VolumeName == \"${volume_name}\")) \
 	    | .RetensionDate ' \
 	    ${mediapools_json}"
     volume_retensiondate=$(eval $cmd)
@@ -724,8 +724,8 @@ ltfs_format () {
     fi
 
     if [ ${#volume_serial} -eq 0 ]; then
-        tape_id=$(echo $volume_name | sed -e 's/\([[:alpha:]]*-\)//g')
-        # tape_id needs to be exactly 6 character long
+	tape_id=$(echo $volume_name | sed -e 's/\([[:alpha:]]*-\)//g')
+	# tape_id needs to be exactly 6 character long
 	volume_serial=$(printf "%0.s0" $(seq 1 $((6 - ${#tape_id}))))
 	volume_serial="${volume_serial}${tape_id}"
     fi
@@ -778,7 +778,7 @@ ltfs_mount () {
 	if [ ! -d $ltfs_mountpoint ]; then
 	    mkdir -p $ltfs_mountpoint
 	fi
-        make_err_file
+	make_err_file
 	if [ $verbose -ge 2 ]; then
 	    printf "${MAGENTA}LTFS mounting tape ${GREEN}'%s'${MAGENTA} to ${GREEN}'%s'${NO_COLOR}\n" \
 		   "$ltfs_devname" "$ltfs_mountpoint"
@@ -791,16 +791,16 @@ ltfs_mount () {
 	    return 0
 	else
 	    # format tape if needed
-            if [ -z $volume_name_active ]; then
-                slot_source="0"
-                mtx_getlabel $slot_source
-            fi
-            need_format=$(grep "medium is not partitioned" ${ERRFILE})
-            rm -f ${ERRFILE}
-            if [ ${#need_format} -ge 1 ]; then
+	    if [ -z $volume_name_active ]; then
+		slot_source="0"
+		mtx_getlabel $slot_source
+	    fi
+	    need_format=$(grep "medium is not partitioned" ${ERRFILE})
+	    rm -f ${ERRFILE}
+	    if [ ${#need_format} -ge 1 ]; then
 		ltfs_format ${volume_name_active}
-                ltfs_mount
-            fi
+		ltfs_mount
+	    fi
 	    return $?
 	fi
     else
@@ -901,8 +901,8 @@ ltfs_reformat () {
 	    fi
 	    # wiping: put tape in an unformatted state
 	    ltfs_wipe
-	    # RET = 8 -> error?
 	    if [ $? -eq 0 ]; then
+		# format: create the ltfs partitions
 		ltfs_format $volume_name_active $volume_serial
 		if [ $? -eq 0 ]; then
 		    ltfs_mount
@@ -1091,7 +1091,7 @@ mount_tape () {
 
     ltfs_is_mounted
     if test $? -eq 0; then
-        # get date from last written tape in given mediapool
+	# if no explicit tape should be mounted, get date from last written tape in given mediapool
 	if [ "${#volume_name}" -eq 0 ]; then
 	    get_lastwrite ${mediapool_name}
 	    if [ $? != 0 ]; then
@@ -1106,7 +1106,7 @@ mount_tape () {
 		printf "${MAGENTA}Active tape in drive: ${GREEN}%s${NO_COLOR}\n" \
 		       "${volume_name_active}"
 	    fi
-            if [ "${#volume_name_active}" -ge 1 ] && [ "${volume_name_active}" != "${volume_name}" ]; then
+	    if [ "${#volume_name_active}" -ge 1 ] && [ "${volume_name_active}" != "${volume_name}" ]; then
 		if [ $verbose -ge 2 ]; then
 		    printf "${MAGENTA}Re-Mounting requested Tape: ${GREEN}%s${NO_COLOR}\n" \
 			   "${volume_name}"
@@ -1128,92 +1128,94 @@ mount_tape () {
 	# check if given tape is poolmember of selected pool
 	get_poolmember ${mediapool_name} ${volume_name}
 	if [ $? -eq 0 ]; then
-	    # volume_name is member of given mediapool
+	    # check the mediapolicy for given volume_name
 	    get_mediapolicy ${mediapool_name} ${volume_name_active}
 	    if [ ${#volume_mediapolicy} -gt 0  ]; then
 		if [ ${volume_mediapolicy} = "append" ] ; then
-	          if [ $verbose -ge 2 ]; then
-	            printf "${MAGENTA}Valid tape mediapolicy: ${GREEN}%s${NO_COLOR}\n" \
-		           "${volume_mediapolicy}"
-	          fi
+		  if [ $verbose -ge 2 ]; then
+		    printf "${MAGENTA}Valid tape mediapolicy: ${GREEN}%s${NO_COLOR}\n" \
+			   "${volume_mediapolicy}"
+		  fi
 		  volume_retensiondate="20180101000000"
 		  get_retensiondate ${mediapool_name} ${volume_name}
-	    	  if [ $? -eq 0 ]; then
+		  if [ $? -eq 0 ]; then
 		      date_now=$($date_cmd)
-	    	      compare_date $date_now $volume_retensiondate
-	    	      if [ $? -eq 2 ]; then
+		      compare_date $date_now $volume_retensiondate
+		      if [ $? -eq 2 ]; then
 			  # retensiondate has exposed: use it
-	          	  if [ $verbose -ge 3 ]; then
-	            	      printf "${MAGENTA}Valid tape, retensiondate has exposed: ${GREEN}%s${NO_COLOR}\n" \
-		                     "${volume_retensiondate}"
-	          	  fi
+			  if [ $verbose -ge 3 ]; then
+			      printf "${MAGENTA}Valid tape, retensiondate has exposed: ${GREEN}%s${NO_COLOR}\n" \
+				     "${volume_retensiondate}"
+			  fi
+			  #ltfs_format ${volume_name_active}
+			  ltfs_reformat ${volume_name_active}
 			  return 0
-	    	      fi
-	    	      if [ $? -eq 1 ]; then
+		      fi
+		      if [ $? -eq 1 ]; then
 			  # respect active retensiondate: unload given tape
-	          	  if [ $verbose -ge 3 ]; then
-	            	      printf "${MAGENTA}Invalid tape ${GREEN}%s${MAGANTA}, respect retensiondate: ${GREEN}%s${NO_COLOR}\n" \
-		                     "${volume_name}" "${volume_retensiondate}"
-	          	  fi
+			  if [ $verbose -ge 3 ]; then
+			      printf "${MAGENTA}Invalid tape ${GREEN}%s${MAGANTA}, respect retensiondate: ${GREEN}%s${NO_COLOR}\n" \
+				     "${volume_name}" "${volume_retensiondate}"
+			  fi
 			  ltfs_umount
 			  mtx_unload
 			  # use next volume_name from pool
-	          	  if [ $verbose -ge 3 ]; then
-	            	      printf "${MAGENTA}Get next tape from MediaPool ${GREEN}%s${MAGANTA}\n" \
-		                     "${mediapool_name}"
-	          	  fi
+			  if [ $verbose -ge 3 ]; then
+			      printf "${MAGENTA}Get next tape from MediaPool ${GREEN}%s${MAGANTA}\n" \
+				     "${mediapool_name}"
+			  fi
 			  get_poolmember_next ${mediapool_name} ${volume_name}
 			  get_slot ${mediapool_name} ${volume_name_next}
 			  mtx_load ${volume_slot}
 			  ltfs_mount
 			  if [ $? -eq 0 ]; then
-		              return 0
+			      return 0
 			  fi
-	    	      fi
+		      fi
 		      return 0
 		  fi
 		  if [ ${volume_mediapolicy} = "overwrite" ] ; then
-	              if [ $verbose -ge 2 ]; then
-	                printf "${MAGENTA}Valid tape mediapolicy: ${GREEN}%s${NO_COLOR}\n" \
-		               "${volume_mediapolicy}"
-	              fi
+		      if [ $verbose -ge 2 ]; then
+			printf "${MAGENTA}Valid tape mediapolicy: ${GREEN}%s${NO_COLOR}\n" \
+			       "${volume_mediapolicy}"
+		      fi
 		      volume_retensiondate="20180101000000"
 		      get_retensiondate ${mediapool_name} ${volume_name}
-	    	      date_now=$($date_cmd)
-	    	      compare_date $date_now $volume_retensiondate
-	    	      if [ $? -eq 2 ]; then
+		      date_now=$($date_cmd)
+		      compare_date $date_now $volume_retensiondate
+		      if [ $? -eq 2 ]; then
 			  # retensiondate has exposed: wipe given tape
-	          	  if [ $verbose -ge 3 ]; then
-	            	      printf "${MAGENTA}Valid tape, wipe and reformat: ${GREEN}%s${NO_COLOR}\n" \
-		                     "${volume_name}"
-	          	  fi
+			  if [ $verbose -ge 3 ]; then
+			      printf "${MAGENTA}Valid tape, wipe and reformat: ${GREEN}%s${NO_COLOR}\n" \
+				     "${volume_name}"
+			  fi
 			  ltfs_wipe
-			  #ltfs_format ${volume_name} ${volume_serial}
-	                  if [ $? -eq 0 ]; then
-		              return 0
-                          fi
-	    	      fi
-	    	      if [ $? -eq 1 ]; then
+			  #ltfs_reformat ${volume_name_active}
+			  if [ $? -eq 0 ]; then
+			      return 0
+			  fi
+		      fi
+		      if [ $? -eq 1 ]; then
 			  # respect active retensiondate: unload given tape
-	          	  if [ $verbose -ge 3 ]; then
-	            	      printf "${MAGENTA}Invalid tape ${GREEN}%s${MAGANTA}, respect retensiondate: ${GREEN}%s${NO_COLOR}\n" \
-		                     "${volume_name}" "${volume_retensiondate}"
-	          	  fi
+			  if [ $verbose -ge 3 ]; then
+			      printf "${MAGENTA}Invalid tape ${GREEN}%s${MAGANTA}, respect retensiondate: ${GREEN}%s${NO_COLOR}\n" \
+				     "${volume_name}" "${volume_retensiondate}"
+			  fi
 			  ltfs_umount
 			  mtx_unload
 			  # use next volume_name from pool
-	          	  if [ $verbose -ge 3 ]; then
-	            	      printf "${MAGENTA}Get next tape from MediaPool ${GREEN}%s${MAGANTA}\n" \
-		                     "${mediapool_name}"
-	          	  fi
+			  if [ $verbose -ge 3 ]; then
+			      printf "${MAGENTA}Get next tape from MediaPool ${GREEN}%s${MAGANTA}\n" \
+				     "${mediapool_name}"
+			  fi
 			  get_poolmember_next ${mediapool_name} ${volume_name}
 			  get_slot ${mediapool_name} ${volume_name_next}
 			  mtx_load ${volume_slot}
 			  ltfs_mount
-	                  if [ $? -eq 0 ]; then
+			  if [ $? -eq 0 ]; then
 			      return 0
-                          fi
-	    	      fi
+			  fi
+		      fi
 		  fi
 		fi
 	    fi
@@ -1258,14 +1260,14 @@ mount_tape () {
 		printf "${MAGENTA}Tape in drive: ${GREEN}%s${NO_COLOR}\n" \
 		       "${volume_name_active}"
 	    fi
-            if [ "${#volume_name_active}" -gt 1 ] && [ "${volume_name_active}" != "${volume_name}" ]; then
+	    if [ "${#volume_name_active}" -gt 1 ] && [ "${volume_name_active}" != "${volume_name}" ]; then
 		if [ $verbose -ge 2 ]; then
 		    printf "${MAGENTA}Active tape ${GREEN}%s${MAGENTA} needs to be exchanged with ${GREEN}%s${NO_COLOR}\n" \
 			   "${volume_name_active}" "${volume_name}"
 		fi
 		mtx_unload
 		if [ $? -eq 0 ]; then
-                    mount_tape "${mediapool_name}" "${volume_name}"
+		    mount_tape "${mediapool_name}" "${volume_name}"
 		    if [ $? -eq 0 ]; then
 			return 0
 		    else
@@ -1287,25 +1289,25 @@ mount_tape () {
 	get_mediapolicy ${mediapool_name} ${volume_name}
 	if [ ${#volume_mediapolicy} -gt 0  ]; then
 	    if [ ${volume_mediapolicy} = "append" ] ; then
-	        if [ $verbose -ge 2 ]; then
-	            printf "${MAGENTA}Valid tape mediapolicy: ${GREEN}%s${NO_COLOR}\n" \
-		           "${volume_mediapolicy}"
-	        fi
+		if [ $verbose -ge 2 ]; then
+		    printf "${MAGENTA}Valid tape mediapolicy: ${GREEN}%s${NO_COLOR}\n" \
+			   "${volume_mediapolicy}"
+		fi
 		#volume_retensiondate="20180101000000"
 		get_retensiondate ${mediapool_name} ${volume_name}
-	    	date_now=$($date_cmd)
-	    	compare_date $date_now $volume_retensiondate
-	        RET=$?
+		date_now=$($date_cmd)
+		compare_date $date_now $volume_retensiondate
+		RET=$?
 		if [ $RET -eq 2 ]; then
 		    if [ $verbose -ge 1 ]; then
-			printf "${MAGENTA}RetensionDate has exposed, mount the tape\n"
-	    	    fi
+			printf "${MAGENTA}RetensionDate has exposed, mount the tape${NO_COLOR}\n"
+		    fi
 		    ltfs_mount
 		    return 0
 		elif [ $RET -eq 1 ]; then
 		    if [ $verbose -ge 1 ]; then
 			printf "${MAGENTA}Tape is bocked via RetensionDate.\n"
-	    	    fi
+		    fi
 		    get_poolmember_next "${mediapool_name}"
 		    if test $? -eq 0; then
 			if [ $verbose -ge 2 ]; then
@@ -1316,22 +1318,22 @@ mount_tape () {
 			mount_tape "${mediapool_name}" "${volume_name_next}"
 			return 0
 		    fi
-	    	fi
+		fi
 	    fi
 	    if [ ${volume_mediapolicy} = "overwrite" ] ; then
 		volume_retensiondate="20180101000000"
 		get_retensiondate ${mediapool_name} ${volume_name}
-	    	date_now=$($date_cmd)
-	    	compare_date $date_now $volume_retensiondate
-	    	if [ $? -eq 2 ]; then
+		date_now=$($date_cmd)
+		compare_date $date_now $volume_retensiondate
+		if [ $? -eq 2 ]; then
 		    # retensiondate has exposed: wipe given tape
 		    ltfs_wipe
-		    #ltfs_format ${volume_name} ${volume_serial}
+		    ltfs_format ${volume_name} ${volume_serial}
 		    if [ $? -eq 0 ]; then
-		        return 0
+			return 0
 		    fi
-	    	fi
-	    	if [ $? -eq 1 ]; then
+		fi
+		if [ $? -eq 1 ]; then
 		    # respect active retensiondate: unload given tape
 		    mtx_unload
 		    if [ $? -eq 0 ]; then
@@ -1384,9 +1386,9 @@ mtx_getlabel () {
 		       "${MTX}" "${changer_device}" "${slot_source}"
 	    fi
 	    volume_name_active=$(perl -ne '
-	    	/Data Transfer Element (\d+):Full \(Storage Element (\d+) Loaded\)(:VolumeTag =\s*(.+))?/ && print "$4\n";' ${TMPFILE})
-            volume_name_active=$(echo $volume_name_active | sed -e 's/ *$//g')
-	    if [ $verbose -ge 2 ]; then
+		/Data Transfer Element (\d+):Full \(Storage Element (\d+) Loaded\)(:VolumeTag =\s*(.+))?/ && print "$4\n";' ${TMPFILE})
+	    volume_name_active=$(echo $volume_name_active | sed -e 's/ *$//g')
+	    if [ $verbose -ge 2 ] && [ ${#volume_name_active} -gt 0 ]; then
 		printf "${MAGENTA}Tape in slot ${GREEN}%s${MAGENTA} has Label: ${GREEN}%s${NO_COLOR}\n" \
 		       "${slot_source}" "${volume_name_active}"
 	    fi
@@ -1397,8 +1399,8 @@ mtx_getlabel () {
 		       "${MTX}" "${changer_device}" "${slot_source}"
 	    fi
 	    volume_name=$(perl -ne '
-	    	/Storage Element ($ENV{"slot_source"}):Full( :VolumeTag=(.+))?/ && print "$3\n";' ${TMPFILE})
-            volume_name=$(echo $volume_name | sed -e 's/ *$//g')
+		/Storage Element ($ENV{"slot_source"}):Full( :VolumeTag=(.+))?/ && print "$3\n";' ${TMPFILE})
+	    volume_name=$(echo $volume_name | sed -e 's/ *$//g')
 	    if [ $verbose -ge 2 ]; then
 		printf "${MAGENTA}Tape in slot ${GREEN}%s${MAGENTA} has Label: ${GREEN}%s${NO_COLOR}\n" \
 		       "${slot_source}" "${volume_name}"
@@ -2030,7 +2032,7 @@ update_lastwrite () {
 	if [ $? -eq 0 ]; then
 	    cmd="jq --monochrome-output --ascii-output '(.MediaPool[] \
 		| select(.Name == \"$mediapool_name\") \
-	    	| .Member[$tape_index] \
+		| .Member[$tape_index] \
 		| .LastWrite) \
 		|= \"$volume_lastwrite\" ' \
 		${mediapools_json} > $XDG_RUNTIME_DIR/$json_file"
@@ -2082,10 +2084,10 @@ update_mediapool_retensiondays () {
 	    if [ $? -eq 0 ]; then
 		cp "$XDG_RUNTIME_DIR/$json_file" "$mediapools_json"
 	    else
-	        if [ $verbose -ge 1 ]; then
-	            printf "${RED}Error:${MAGENTA} Can't update DefaultRetensinDays ${GREEN}'%s'${MAGENTA} in media-pool file ${GREEN}'%s'${NO_COLOR}\n" \
-		           "$mediapool_defaultretensiondays" "$mediapools_json"
-	        fi
+		if [ $verbose -ge 1 ]; then
+		    printf "${RED}Error:${MAGENTA} Can't update DefaultRetensinDays ${GREEN}'%s'${MAGENTA} in media-pool file ${GREEN}'%s'${NO_COLOR}\n" \
+			   "$mediapool_defaultretensiondays" "$mediapools_json"
+		fi
 		return 1
 	    fi
 	else
@@ -2138,7 +2140,7 @@ update_retensiondate () {
 	if [ $? -eq 0 ]; then
 	    cmd="jq --monochrome-output --ascii-output '(.MediaPool[] \
 		| select(.Name == \"$mediapool_name\") \
-	    	| .Member[$tape_index] \
+		| .Member[$tape_index] \
 		| .RetensionDate) \
 		|= \"$volume_retensiondate\" ' \
 		${mediapools_json} > $XDG_RUNTIME_DIR/$json_file"
@@ -2146,10 +2148,10 @@ update_retensiondate () {
 	    if [ $? -eq 0 ]; then
 		cp "$XDG_RUNTIME_DIR/$json_file" "$mediapools_json"
 	    else
-	        if [ $verbose -ge 1 ]; then
-	            printf "${RED}Error:${MAGENTA} Can't update RetensionDate ${GREEN}'%s'${MAGENTA} for Tape ${GREEN}'%s'${NO_COLOR}\n" \
-		           "$volume_retensiondate" "$volume_name"
-	        fi
+		if [ $verbose -ge 1 ]; then
+		    printf "${RED}Error:${MAGENTA} Can't update RetensionDate ${GREEN}'%s'${MAGENTA} for Tape ${GREEN}'%s'${NO_COLOR}\n" \
+			   "$volume_retensiondate" "$volume_name"
+		fi
 		return 1
 	    fi
 	else
@@ -2171,62 +2173,62 @@ Usage: $progname [options]
 
 Options:
      --add-retensiondays    add RetensionDays to LastWrite attribute for given TapeName in Pool (JSON-File)
-                            (input attribute: <mediapool> <volume_name> <days>)
+			    (input attribute: <mediapool> <volume_name> <days>)
      --color                Enable colored output messages
      --get-lastwrite        extract LastWrite attribute from given Pool member (JSON-File)
-                            (input attribute: <mediapool> [<volume_name>])
-                            without given volume_name, extract Pool member that was last witten to
+			    (input attribute: <mediapool> [<volume_name>])
+			    without given volume_name, extract Pool member that was last witten to
      --get-mediapool-name   extract MediaPool name for given VolumeName from configuration (JSON-File)
-                            (input attribute: <volume_name>)
+			    (input attribute: <volume_name>)
      --get-mediapools       extract MediaPool names from configuration (JSON-File)
      --get-mediapolicy      extract MediaPolicy attribute from Pool configuration (JSON-File)
-                            (input attribute: <mediapool> [<volume_name>])
+			    (input attribute: <mediapool> [<volume_name>])
      --get-poolmember       extract VolumeName attribute from Pool configuration (JSON-File)
-                            (input attribute: <mediapool> [<volume_name>])
+			    (input attribute: <mediapool> [<volume_name>])
      --get-poolmember-next  extract VolumeName for next usable Pool member (JSON-File)
-                            (input attribute: <mediapool> [volume_name])
+			    (input attribute: <mediapool> [volume_name])
      --get-retensiondate    extract RetensionDate attribute from Pool configuration (JSON-File)
-                            (input attribute: <mediapool> [<volume_name>])
+			    (input attribute: <mediapool> [<volume_name>])
      --get-retensiondays    extract DefaultRetensionDays attribute from Pool configuration (JSON-File)
-                            (input attribute: <mediapool>)
+			    (input attribute: <mediapool>)
      --get-slot             extract Slot attribute from Pool configuration (JSON-File)
-                            (input attribute: <mediapool> [<volume_name>])
+			    (input attribute: <mediapool> [<volume_name>])
      --ltfs-getattribute    report ltfs extended attribute for mounted tape
-                            (input attribute: <ltfs_attribute>)
+			    (input attribute: <ltfs_attribute>)
      --ltfs-format          format tape
-                            (input attribute: <volume_name> <tape_id>)
+			    (input attribute: <volume_name> <tape_id>)
      --ltfs-is-mounted      returns true, if ltfs tape is already mounted
      --ltfs-mount           mount a ltfs tape (returns true on success)
      --ltfs-reformat        reformat mounted tape
-                            (input attribute: [<volume_name>])
+			    (input attribute: [<volume_name>])
      --ltfs-umount          unmount a ltfs tape (returns true on success)
      --media-change         Update RetensionDate for last written Pool-Tape and  und exchange tapes in slots
-                            (input attribute: <mediapool> [<volume_name>])
+			    (input attribute: <mediapool> [<volume_name>])
      --mtx-exchange         exchange tapes in slots
-                            (input attribute: <slot_source> <slot_target>)
+			    (input attribute: <slot_source> <slot_target>)
      --mtx-getlabel         report tape label/barcode for tape in drive
-                            (input attribute: <slot_source>)
+			    (input attribute: <slot_source>)
      --mtx-inventory        run inquriy task for tape-changer
      --mtx-load             load a tape to target slot
-                            (input attribute: <slot_source>)
+			    (input attribute: <slot_source>)
      --mtx-status           list changer slot status
      --mtx-transfer         transfer a tape to target slot
-                            (input attribute: <slot_source> <slot_target>)
+			    (input attribute: <slot_source> <slot_target>)
      --mtx-unload           unload a tape
-                            (input attribute: slot_source drive)
+			    (input attribute: slot_source drive)
      --mount                make tape accessible for OS
-                            (input attribute: <mediapool_name> [<volume_name>])
+			    (input attribute: <mediapool_name> [<volume_name>])
      -q, --quiet            Be quiet
      --update-lastwrite     update LastWrite attribute for given TapeName in Pool (JSON-File)
-                            if no datestring is specified, use "now"
+			    if no datestring is specified, use "now"
 			    (input attribute: <mediapool> <volume_name> [<YYYYMMDDHHMMSS> )
      --update-retensiondate update RetensionDate attribute for given TapeName in Pool (JSON-File)
-                            if no datestring is specified, use "now"
+			    if no datestring is specified, use "now"
 			    (input attribute: <mediapool> <volume_name> [<YYYYMMDDHHMMSS> )
      --update-retensiondays update DefaultRetensionDays attribute for given Pool (JSON-File)
-                            (input attribute: <mediapool>)
+			    (input attribute: <mediapool>)
      --use-mtx              use mtx loader handling. If not specified, all mtx commands will use
-                            default device ($default_changer_device)
+			    default device ($default_changer_device)
      -v, --verbose          Be verbose on what's going on (min: --verbose=1, max: --verbose=3)
      --version		    show program version
 EOF
@@ -2273,7 +2275,7 @@ case $cmd in
 		       "${volume_name}" "${volume_date}"
 	    fi
 	fi
-    	;;
+	;;
     get-lastwrite)
 	valid_member=0
 	get_lastwrite "${mediapool_name}" "${volume_name}"
@@ -2289,7 +2291,7 @@ case $cmd in
 		fi
 	    fi
 	fi
-    	;;
+	;;
     get-mediapolicy)
 	get_mediapolicy "${mediapool_name}" "${volume_name}"
 	if test $? -gt 0; then
@@ -2300,7 +2302,7 @@ case $cmd in
 		       "${volume_name}" "${volume_mediapolicy}"
 	    fi
 	fi
-    	;;
+	;;
     get-mediapool-name)
 	get_mediapool_name "${volume_name}"
 	if test $? -gt 0; then
@@ -2311,7 +2313,7 @@ case $cmd in
 		       "${mediapool_name}"
 	    fi
 	fi
-    	;;
+	;;
     get-mediapools)
 	get_mediapool_names
 	if test $? -gt 0; then
@@ -2322,7 +2324,7 @@ case $cmd in
 		       "${mediapool_names}"
 	    fi
 	fi
-    	;;
+	;;
     get-poolmember)
 	valid_member=0
 	get_poolmember "${mediapool_name}" "${volume_name}"
@@ -2335,7 +2337,7 @@ case $cmd in
 	    fi
 	    valid_member=1
 	fi
-    	;;
+	;;
     get-poolmember-next)
 	valid_member=0
 	get_poolmember_next "${mediapool_name}" "${volume_name}"
@@ -2347,7 +2349,7 @@ case $cmd in
 		       "${mediapool_name}" "${volume_name_next}"
 	    fi
 	fi
-    	;;
+	;;
     get-mediapool-retensiondays)
 	get_mediapool_retensiondays "${mediapool_name}"
 	if test $? -gt 0; then
@@ -2358,7 +2360,7 @@ case $cmd in
 		       "${mediapool_name}" "${mediapool_defaultretensiondays}"
 	    fi
 	fi
-    	;;
+	;;
     get-retensiondate)
 	get_retensiondate "${mediapool_name}" "${volume_name}"
 	if test $? -gt 0; then
@@ -2371,7 +2373,7 @@ case $cmd in
 		       "${volume_name}" "${volume_date}"
 	    fi
 	fi
-    	;;
+	;;
     get-slot)
 	get_slot "${mediapool_name}" "${volume_name}"
 	if test $? -eq 0; then
@@ -2381,7 +2383,7 @@ case $cmd in
 	    fi
 	fi
 	exit $?
-    	;;
+	;;
     ltfs-format)
 	ltfs_format "${volume_name}" "${tape_id}"
 	if test $? -gt 0; then
@@ -2513,7 +2515,7 @@ case $cmd in
 		fi
 	    fi
 	fi
-    	;;
+	;;
     update-mediapool-retensiondays)
 	update_mediapool_retensiondays "${mediapool_name}" "${mediapool_defaultretensiondays}"
 	if test $? -gt 0; then
@@ -2524,7 +2526,7 @@ case $cmd in
 		       "${mediapool_name}" "${mediapool_defaultretensiondays}"
 	    fi
 	fi
-    	;;
+	;;
     update-retensiondate)
 	update_retensiondate "${mediapool_name}" "${volume_name}" "${date_string}"
 	if test $? -gt 0; then
@@ -2539,5 +2541,5 @@ case $cmd in
 		fi
 	    fi
 	fi
-    	;;
+	;;
 esac
