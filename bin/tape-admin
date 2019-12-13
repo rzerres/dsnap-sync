@@ -22,7 +22,7 @@
 # Helper routines for tape handling
 
 progname="${0##*/}"
-version="0.0.14"
+version="0.0.15"
 
 # global variables
 color=0
