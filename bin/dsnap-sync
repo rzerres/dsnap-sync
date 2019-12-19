@@ -217,17 +217,17 @@ check_transfer_size () {
 	    else
 		if [ ${#clone_snapshot} -gt 0 ]; then
 		    # WIP: dry run with btrfs send
-		    exec 5>&1
-		    transfer_size=$(btrfs send -v -p $clone_snapshot $source_snapshot \
-					| pv -f 2>&1 > /dev/null | tee >(cat - >&5) \
-					| awk -F ' ' '{print $1}' )
+		    # need to substitue btrfs 'x.yyGiB' suffix, since pv will need 'xG'
+		    transfer_size=$(btrfs send -v -p $clone_snapshot $source_snapshot 2>$BTRFS_PIPE \
+					| pv -f 2>&1 >/dev/null \
+					| awk -F ' ' '{ gsub(/.[0-9][0-9]MiB/,"M"); gsub(/.[0-9][0-9]GiB/,"G"); print $1 }' )
 		else
 		    # filesystem size
 		    transfer_size=$(du --one-file-system --summarize $snapper_source_snapshot 2>/dev/null \
 					| awk -F ' ' '{print $1}')
-		fi
-		if [ $transfer_size -ge 1048576 ]; then
-		    transfer_size=$(($transfer_size / 1024 / 1024))G
+		    if [ $transfer_size -ge 1048576 ]; then
+			transfer_size=$(($transfer_size / 1024 / 1024))G
+		    fi
 		fi
 		if [ $verbose -ge 2 ]; then
 		    printf "${MAGENTA}BTRFS transfer size for ${GREEN}source snapshot${MAGENTA}: size=${GREEN}'%s'${NO_COLOR} ...\n" \
@@ -1855,7 +1855,7 @@ run_backup () {
 		ret=$(eval $cmd)
 		if [ $? -eq 0 ]; then
 		    # get size of stream that needs to be transfered
-		    check_transfer_size "source_snapshot=$snapper_source_snapshot" "clone_snapshot=snapper_common_sync_snapshot"
+		    check_transfer_size "source_snapshot=$snapper_source_snapshot" "clone_snapshot=$snapper_common_sync_snapshot"
 		    create_pv_cmd
 
 		    case $selected_fstype in
