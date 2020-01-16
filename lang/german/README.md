@@ -3,6 +3,13 @@
 
 # dsnap-sync
 
+<p align="center">
+  <span>English</span> |
+  <a href="../..">Englisch</a>
+  <!-- a href="../spanish">Spanisch</a> | -->
+  <a href="lang/german">Deutsch</a>
+</p>
+
 ## Über
 
 `dsnap-sync` ist konzipiert, um Backups für btrfs formatierte Dateisysteme
@@ -138,17 +145,17 @@ Folgende Tools werden verwendet:
 erforderlich. Über ein Makefile wird die Installation an den
 richtigen Ziel-Pfad gesteuert.
 
-    # make install
+	# make install
 
 Sollte Ihr System einen unüblichen Speicherort für die snapper
 Konfigurationen verwenden, kann der Pfad in einer Umgebungs-Variable
 für die Installation einbezogen werden (`SNAPPER_CONFIG`).
 
-    Arch Linux/Fedora/Gentoo:
-    # make SNAPPER_CONFIG=/etc/conf.d/snapper install
+	Arch Linux/Fedora/Gentoo:
+	# make SNAPPER_CONFIG=/etc/conf.d/snapper install
 
-    Debian/Ubuntu:
-    # make SNAPPER_CONFIG=/etc/default/snapper install
+	Debian/Ubuntu:
+	# make SNAPPER_CONFIG=/etc/default/snapper install
 
 Die lokalen `snapper` Konfiguration werden um ein neues Template
 'dsnap-sync' ergänzt.
@@ -172,41 +179,41 @@ Software Paket Manager.
 
 ## Optionen
 
-    Usage: dsnap-sync [options]
+	Usage: dsnap-sync [options]
 
-      Options:
-      -a, --automount <path>      start automount for given path to get a valid target mountpoint.
-      -b, --backupdir <prefix>    backupdir is a relative path that will be appended to target backup-root
-          --backuptype <type>     Specify backup type <archive | child | parent>
-	      --batch                 no user interaction
-      -d, --description <desc>    Change the snapper description. Default: "latest incremental backup"
-          --label-finished <desc> snapper description tagging successful jobs. Default: "dsnap-sync backup"
-          --label-running <desc>  snapper description tagging active jobs. Default: "dsnap-sync in progress"
-          --label-synced <desc>   snapper description tagging last synced jobs.
-                                  Default: "dsnap-sync last incremental"
-          --color                 Enable colored output messages
-      -c, --config <config>       Specify the snapper configuration to use. Otherwise will perform for each snapper
-                                  configuration. You can select multiple configurations
-                                  (e.g. -c "root" -c "home"; --config root --config home)
-          --config-postfix <name> Specify a postfix that will be appended to the destination snapper config name.
-          --dry-run               perform a trial run (no changes are written).
-          --mediapool             Specify the name of the tape MediaPool
-      -n, --noconfirm             Do not ask for confirmation for each configuration. Will still prompt for backup
-          --nonotify              Disable graphical notification (via dbus)
-          --nopv                  Disable graphical progress output (disable pv)
-          --noionice              Disable setting of I/O class and priority options on target
-      -r, --remote <address>      Send the snapshot backup to a remote machine. The snapshot will be sent via ssh
-                                  You should specify the remote machine's hostname or ip address. The 'root' user
-                                  must be permitted to login on the remote machine
-      -p, --port <port>           The remote port
-      -s, --subvolid <subvlid>    Specify the subvolume id of the mounted BTRFS subvolume to back up to. Defaults to 5.
-	      --use-btrfs-quota       use btrfs-quota to calculate snapshot size
-      -u, --uuid <UUID>           Specify the UUID of the mounted BTRFS subvolume to back up to. Otherwise will prompt
-                                  If multiple mount points are found with the same UUID, will prompt for user selection
-      -t, --target <target>       Specify the mountpoint of the backup device
-          --volumename            Specify the name of the tape volume
-      -v, --verbose               Be verbose on what's going on (min: --verbose=1, max: --verbose=3)
-          --version		          show program version
+	  Options:
+	  -a, --automount <path>      start automount for given path to get a valid target mountpoint.
+	  -b, --backupdir <prefix>    backupdir is a relative path that will be appended to target backup-root
+		  --backuptype <type>     Specify backup type <archive | child | parent>
+		  --batch                 no user interaction
+	  -d, --description <desc>    Change the snapper description. Default: "latest incremental backup"
+		  --label-finished <desc> snapper description tagging successful jobs. Default: "dsnap-sync backup"
+		  --label-running <desc>  snapper description tagging active jobs. Default: "dsnap-sync in progress"
+		  --label-synced <desc>   snapper description tagging last synced jobs.
+								  Default: "dsnap-sync last incremental"
+		  --color                 Enable colored output messages
+	  -c, --config <config>       Specify the snapper configuration to use. Otherwise will perform for each snapper
+								  configuration. You can select multiple configurations
+								  (e.g. -c "root" -c "home"; --config root --config home)
+		  --config-postfix <name> Specify a postfix that will be appended to the destination snapper config name.
+		  --dry-run               perform a trial run (no changes are written).
+		  --mediapool             Specify the name of the tape MediaPool
+	  -n, --noconfirm             Do not ask for confirmation for each configuration. Will still prompt for backup
+		  --nonotify              Disable graphical notification (via dbus)
+		  --nopv                  Disable graphical progress output (disable pv)
+		  --noionice              Disable setting of I/O class and priority options on target
+	  -r, --remote <address>      Send the snapshot backup to a remote machine. The snapshot will be sent via ssh
+								  You should specify the remote machine's hostname or ip address. The 'root' user
+								  must be permitted to login on the remote machine
+	  -p, --port <port>           The remote port
+	  -s, --subvolid <subvlid>    Specify the subvolume id of the mounted BTRFS subvolume to back up to. Defaults to 5.
+		  --use-btrfs-quota       use btrfs-quota to calculate snapshot size
+	  -u, --uuid <UUID>           Specify the UUID of the mounted BTRFS subvolume to back up to. Otherwise will prompt
+								  If multiple mount points are found with the same UUID, will prompt for user selection
+	  -t, --target <target>       Specify the mountpoint of the backup device
+		  --volumename            Specify the name of the tape volume
+	  -v, --verbose               Be verbose on what's going on (min: --verbose=1, max: --verbose=3)
+		  --version		show program version
 
 ## Erster Sicherungslauf
 
@@ -264,7 +271,7 @@ sorgen. Folgende Sicherungstypen werden unterschieden:
   * ein Unterverzeichnis des Konfigurations-Namens (`archive-<config-name>`)
   * ein Unterverzeichnis der Snapshot-ID (`<snapper-id>`)
   * der aktuelle btrfs Stream wird im Unterverzeichnis abgelegt
-    (`<snapper-id>_[full | incremental].btrfs`)
+	(`<snapper-id>_[full | incremental].btrfs`)
   * die Metadaten des Prozesses werden in der Datei `info.xml` abgelegt
 
   Steht `ltfs` zur Verfügung, ist ein Backup auf Bänder möglich.
@@ -357,4 +364,4 @@ Diese Arbeit ist unter der [Creative Common License 4.0][License-CC_BY] lizensie
 ![Creative Common Logo][Logo-CC_BY]
 
 © 2016, 2017  James W. Barnett;
-© 2017 - 2018 Ralf Zerres
+© 2017 - 2019 Ralf Zerres

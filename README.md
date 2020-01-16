@@ -5,8 +5,8 @@
 
 <p align="center">
   <span>English</span> |
-  <!-- a href="lang/spanish#dsnap-sync">Spanish</a> | -->
-  <a href="lang/german#dsnap-sync">Deutsch</a>
+  <!-- a href="lang/spanish">Spanish</a> | -->
+  <a href="lang/german">Deutsch</a>
 </p>
 
 ## About
@@ -313,8 +313,8 @@ the corresponding data in a snapper compatible directory structure on the tape.
 
 The structure may look like:
 
-└── backups
-	└── @<server-name>
+ └── backups
+	 └── @<server-name>
 		├── archive-<subvol-name>
 		│   └── <subvol-id>
 		│       ├── <subvol-id>_full.btrfs
@@ -359,4 +359,4 @@ This work is licensed under a [Creative Common License 4.0][License-CC_BY]
 ![Creative Common Logo][Logo-CC_BY]
 
 © 2016, 2017  James W. Barnett;
-© 2017 - 2018 Ralf Zerres
+© 2017 - 2019 Ralf Zerres
