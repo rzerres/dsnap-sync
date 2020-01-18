@@ -1,5 +1,5 @@
 <!-- dsnap-sync README.md -->
-<!-- version: 0.5.9 -->
+<!-- version: 0.6.5 -->
 
 # dsnap-sync
 
@@ -313,12 +313,12 @@ the corresponding data in a snapper compatible directory structure on the tape.
 
 The structure may look like:
 
- └── backups
-	 └── @<server-name>
-		├── archive-<subvol-name>
-		│   └── <subvol-id>
-		│       ├── <subvol-id>_full.btrfs
-		│       └── info.xml
+> └── backups
+>	 └── @<server-name>
+>		 └── archive-<subvol-name>
+>			 └── <subvol-id>
+>				 ├── <subvol-id>_full.btrfs
+>				 └── info.xml
 
 The file `info.xml` provide the metadata corresponding to the snapshot.
 The data of the snapshot is stored in the file `<subvol-id>_full.btrfs`.
