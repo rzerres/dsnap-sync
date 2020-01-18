@@ -1,5 +1,5 @@
 <!-- dsnap-sync README.md -->
-<!-- version: 0.5.9 -->
+<!-- version: 0.6.5 -->
 
 # dsnap-sync
 
@@ -7,7 +7,6 @@
   <span>English</span> |
   <a href="../..">Englisch</a>
   <!-- a href="../spanish">Spanisch</a> | -->
-  <a href="lang/german">Deutsch</a>
 </p>
 
 ## Über
@@ -332,6 +331,66 @@ eingehängt werden (FUSE). Das Beschreiben und Auslesen der Daten erfolgt
 dann mit den gewohnten Betriebssystem Tools. Eine Open-Source Implementierung
 finden Sie z.B. unter
 [LinearTapeFileSystem](https://github.com/LinearTapeFileSystem/ltfs).
+
+## Rücksicherung (restore)
+
+### Dateisystem (target)
+
+Wurden Daten mit einer nativen btrfs Methode (`btrfs-snapshot`,
+`btrfs-clone`) gesichert, befinden sie sich in einer `snapper` kompatiblen
+Verzeichnisstruktur auf dem gewählten Target.
+
+Diese Struktur könnte so aussehen:
+
+* └ backups
+   * └ @\<server-name\>
+	 * └ \<subvol-name\>
+	   *  └ \<subvol-id\>
+		 * ├ \.snapshot\>
+		 * └ info.xml
+
+Um Daten zurückzusichern, können Sie entweder native `snapper` Methoden verwenden,
+oder auf Betriebssystem Programme zurückgreifen.
+
+  * native snapper Methoden
+
+	Verwenden Sie `snapper diff <id1>..<id2> [Dateien]`, um Unterschiede in den
+	gewählten subvol-id's aufzuzeigen.
+	Verwenden Sie `snapper rollback <id>`, um alle Daten der Sicherung (\<subvol-id\>)
+	an den Ursprungsort zurückzusichern.
+
+  * Betriebssystem Programme
+
+	Verwenden Sie Ihren bevorzugten  Datei-Manager und wechseln Sie in das
+	Verzeichnis, in dem sich die Daten des gewünschten Backups (\<subvol-id\>)
+	befinden. Die Daten wurden als **read-only** Snapshot gesichert.
+	Sie können von hier aus in jedes gewünsche Zielverzeichnis kopiert werden.
+
+### Band-Sicherung (tape)
+
+Wurden Daten mit der Methode `btrfs-archive` gesichert, speichert `dsnap-sync`
+diese in einer `snapper` kompatiblen Datei-Struktur auf dem Band.
+
+Dies Struktur könnte so aussehen:
+
+ * └ backups
+   * └ @\<server-name\>
+	 * └ archive-\<subvol-name\>
+	   *  └ \<subvol-id\>
+		 * ├ \<subvol-id\>_full.btrfs
+		 * └ info.xml
+
+In der Datei `info.xml` werden die Metadaten zum Snapshot gespeichert.
+Die Bewegungsdaten des snapshots befinden sich in der Datei `\<subvol-id\>_full.btrfs`.
+Diese Datei muss mit dem btrfs programm `btrfs-send` auf ein btrfs Verzeichnis zurück
+geschrieben werden:
+
+	cd /target_btrfs_path
+	cp /path_to_tape_root/backups/@<server-name>/archive-<subvol-name>/<subvol-id>_full.btrfs .
+	cat <subvol-id>_full.btrfs  | btrfs receive -v  .
+	rm <subvol-id>_full.btrfs
+
+Die man-page zu `btrfs-send` enthält weiterführende Informationen.
 
 ## Mitarbeit
 

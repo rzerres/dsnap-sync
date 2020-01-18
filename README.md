@@ -306,6 +306,34 @@ An open-source implementation can be found at
 
 ## Restore
 
+### From Snapshot
+
+When `dsnap-sync` did save the data using a native btrfs method
+(`btrfs-snapshot` or `btrfs-clone`), data will be stored in a snapper compatible
+directory structure on the target.
+
+The structure may look like:
+
+* └ backups
+   * └ @\<server-name\>
+	 * └ \<subvol-name\>
+	   *  └ \<subvol-id\>
+		 * ├ \.snapshot\>
+		 * └ info.xml
+
+To restore the data, you may either use `snapper` methods or copy back
+the needed files using standard OS tools.
+
+  * using snapper
+	You may use `snapper diff <id1>..<id2> [files]` to compare the differences
+	between the given suvol-id's.
+	You may use `snapper rollback <id> ` to restore all data from the given \<id\>
+
+  * using OS tools
+	Use your favorit file-manager and change into the directory storing your
+	target backup subvol-id. The snapshots are stored in **read-only** mode.
+	Data are presented flat file and can be copied to any desired destination.
+
 ### From Tape
 
 When `dsnap-sync` did save the data with method `btrfs-archive`, you will find
@@ -313,22 +341,22 @@ the corresponding data in a snapper compatible directory structure on the tape.
 
 The structure may look like:
 
-> └── backups
->	 └── @<server-name>
->		 └── archive-<subvol-name>
->			 └── <subvol-id>
->				 ├── <subvol-id>_full.btrfs
->				 └── info.xml
+ * └ backups
+   * └ @\<server-name\>
+	 * └ archive-\<subvol-name\>
+	   *  └ \<subvol-id\>
+		 * ├ \<subvol-id\>_full.btrfs
+		 * └ info.xml
 
-The file `info.xml` provide the metadata corresponding to the snapshot.
+The file `info.xml` provides the metadata corresponding to the snapshot.
 The data of the snapshot is stored in the file `<subvol-id>_full.btrfs`.
 This file has to be decrypted with btrfs tool `btrfs-send` to a btrfs
 restore directory:
 
-  cd /target_btrfs_path
-  cp /path_to_tape_root/backups/@<server-name>/archive-<subvol-name>/<subvol-id>_full.btrfs .
-  cat <subvol-id>_full.btrfs  | btrfs receive -v  .
-  rm <subvol-id>_full.btrfs
+	cd /target_btrfs_path
+	cp /path_to_tape_root/backups/@<server-name>/archive-<subvol-name>/<subvol-id>_full.btrfs .
+	cat <subvol-id>_full.btrfs  | btrfs receive -v  .
+	rm <subvol-id>_full.btrfs
 
 Please consult btrfs-send man-page for further info.
 
