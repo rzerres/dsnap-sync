@@ -1,6 +1,6 @@
 # Maintainer: Ralf Zerres <ralf.zerres.de at gmail dot com>
 pkgname=dsnap-sync
-pkgver=0.6.0
+pkgver=0.6.5
 pkgrel=1
 pkgdesc="Use snapper snapshots to backup to external drive"
 arch=(any)
@@ -11,7 +11,7 @@ optdepends=('attr' 'ionice' 'jq: for "MediaPool" functionality' 'libnotify' 'ltf
 source=(${url}/releases/download/$pkgver/$pkgname-$pkgver.tar.gz{,.sig})
 #validpgpkeys=('8535CEF3F3C38EE69555BF67E4B5E45AA3B8C5C3')
 sha512sums=('SKIP')
-            'SKIP')
+	    'SKIP')
 
 package() {
     cd $pkgname
