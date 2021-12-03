@@ -4,7 +4,7 @@
 
 - dsnap-sync: restore btrfs-streams from archive backups
   * find last full
-  * iterate oval available incrementals
+  * iterate oval available incremental snapshots
 - dsnap-sync: restore btrfs snapshot from snapshot backups
   * $ssh btrfs send `<snapshot_path>/<snapshot-id>/snapshot_ro` | btrfs receive `/<btrfs-restore-dir>/`
     (`recieved_uuid` attribte of `<btrfs-restore-dir>/snapshot_ro` will be imported from `<snapshot_path>/<snapshot-id>/snapshot_ro`)
