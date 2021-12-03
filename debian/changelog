@@ -1,3 +1,10 @@
+dsnap-sync (0.6.6) unstable; urgency=low
+
+  [Ralf Zerres]
+  * branch: master
+
+ -- Ralf Zerres <rzerres@networkx.de>  Thu, 03 Dez 2021 13:30:00 +0100
+
 dsnap-sync (0.6.4) unstable; urgency=low
 
   [Ralf Zerres]
