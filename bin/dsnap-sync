@@ -49,6 +49,7 @@ batch=0
 btrfs_quota=0
 btrfs_quota_tmp=1
 btrfs_verbose_flag=
+calculate_size=0
 color=0
 donotify=0
 dryrun=0
@@ -281,8 +282,11 @@ create_pv_cmd () {
     # prepare cmdline output settings for interactive progress status
     if [ $do_pv_cmd -eq 1 ]; then
         pv_options="--delay-start 2  --interval 5 --format \"time elapsed [%t] | avg rate %a | rate %r | transmitted [%b] | %p | time remaining [%e]\" "
-        cmd_pv="pv --size $transfer_size $pv_options | "
-        #cmd_pv="pv $pv_options --size ${transfer_size} | dialog --gauge \"$progname: Progress for config '$selected_config'\" 6 85 |"
+        if [ $calculate_size -eq 1 ]; then
+            pv_size_option="--size ${transfer_size}"
+        fi
+        cmd_pv="pv $pv_size_option $pv_options | "
+        #cmd_pv="pv $pv_size_option $pv_options | dialog --gauge \"$progname: Progress for config '$selected_config'\" 6 85 |"
     else
         cmd_pv=''
     fi
@@ -750,6 +754,11 @@ get_snapper_config_value () {
     value=$(eval "$run_ssh" cat "$config_file" \
                 | awk '/'"$config_key"'/' \
                 | awk -F "=" '{ gsub("\"",""); print $2}')
+
+    if [ "$verbose" -ge 3 ]; then
+        printf "Snapper key %s'%s'%s: '%s'\n" \
+               "${GREEN} "$config_key" "${NO_COLOR}" "$value"
+    fi
 }
 
 get_snapper_last_sync_id () {
@@ -919,7 +928,7 @@ get_snapper_sync_id () {
     cmd="snapper --config $snapper_config list --type single \
          | awk -F '|' ' \$1 == $snapper_sync_id { gsub(/ /,_); print \$1} '"
     if [ "$verbose" -ge 3 ]; then
-        printf "${MAGENTA}Search cmd: '%s'${NO_COLOR}\n" "cmd"
+        printf "${MAGENTA}Search cmd: '%s'${NO_COLOR}\n" "$cmd"
     fi
 
     ret=$(eval "$run_ssh" "$cmd")
@@ -1106,6 +1115,10 @@ parse_params () {
                 backuptype_cmdline="$2"
                 shift 2
                 ;;
+            --calculate-size)
+                calulate_size=1
+                shift 1
+                ;;
             -c|--config)
                 # Pseudo-Array: selected_config_$i
                 eval "selected_config_$i='${2}'"
@@ -1174,6 +1187,10 @@ parse_params () {
             --mode)
                 backup_mode="$2"
                 shift 2
+                ;;
+            --no-btrfs-quota)
+                btrfs_quota=0
+                shift 1
                 ;;
             --nonotify)
                 donotify=0
@@ -1244,6 +1261,16 @@ parse_params () {
                 ;;
             --config-postfix=*)
                 snapper_config_postfix="${1#*=}"
+                shift
+                ;;
+            --calculate-size=*)
+                case ${1#*=} in
+                    yes | Yes | True | true)
+                        calculate_size=1;
+                        ;;
+                    *)
+                        ;;
+                esac
                 shift
                 ;;
             --color=*)
@@ -1841,7 +1868,9 @@ run_backup () {
                    || [ "$backup_mode" = "full" ] ; then
 
                 # get size of stream that needs to be transfered
-                check_transfer_size "source_snapshot=$snapper_source_snapshot"
+                if [ $calculate_size -eq 1 ]; then
+                    check_transfer_size "source_snapshot=$snapper_source_snapshot"
+                fi
 
                 # prepare send pipe command
                 create_pv_cmd
@@ -2842,6 +2871,7 @@ Options:
      --label-running <desc>  snapper description tagging active jobs. Default: "dsnap-sync in progress"
      --label-synced <desc>   snapper description tagging last synced jobs
                              Default: "dsnap-sync last incremental"
+     --calculate-size        Enable calculation of sync-size for given snapshots
      --color                 Enable colored output messages
  -c, --config <config>       Specify <multiple> snapper configurations.
                              Default: Perform snapshots for each available snapper configuration.
@@ -2850,6 +2880,7 @@ Options:
      --dry-run               perform a trial run (no changes are written)
      --mediapool             Specify the name of the tape MediaPool
      --mode                  Force backup mode <full>
+     --no-btrfs-quota        don't consume btrfs-quota to estimate snapshot size
  -n, --noconfirm             Do not ask for confirmation for each configuration. Will still prompt for backup
      --nonotify              Disable graphical notification (via dbus)
      --nopv                  Disable graphical progress output (disable pv)
