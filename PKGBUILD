@@ -1,8 +1,8 @@
-# Maintainer: Ralf Zerres <ralf.zerres.de at gmail dot com>
+# Maintainer: Ralf Zerres <ralf.zerres at mail dot de>
 pkgname=dsnap-sync
-pkgver=0.6.6
+pkgver=0.6.8
 pkgrel=1
-pkgdesc="Use snapper snapshots to backup to external drive"
+pkgdesc="BTRFS centric backups tool supporting snapper history for snapshot backups"
 arch=(any)
 url="https://github.com/rzerres/dsnap-sync"
 license=('GPL')
