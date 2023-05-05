@@ -1,5 +1,5 @@
 <!-- dsnap-sync README.md -->
-<!-- version: 0.6.6 -->
+<!-- version: 0.6.8 -->
 
 # dsnap-sync
 
@@ -184,6 +184,7 @@ Please use your host software package manager.
 		  --label-running <desc>  snapper description tagging active jobs. Default: "dsnap-sync in progress"
 		  --label-synced <desc>   snapper description tagging last synced jobs.
 								  Default: "dsnap-sync last incremental"
+          --calculate-btrfs-size  Enable calculation of sync-size for given snapshots
 		  --color                 Enable colored output messages
 	  -c, --config <config>       Specify the snapper configuration to use. Otherwise will perform for each snapper
 								  configuration. You can select multiple configurations
@@ -191,6 +192,7 @@ Please use your host software package manager.
 		  --config-postfix <name> Specify a postfix that will be appended to the destination snapper config name.
 		  --dry-run               perform a trial run (no changes are written).
 		  --mediapool             Specify the name of the tape MediaPool
+          --no-btrfs-quota        don't consume btrfs-quota to estimate snapshot size
 	  -n, --noconfirm             Do not ask for confirmation for each configuration. Will still prompt for backup
 		  --nonotify              Disable graphical notification (via dbus)
 		  --nopv                  Disable graphical progress output (disable pv)
@@ -387,4 +389,4 @@ This work is licensed under a [Creative Common License 4.0][License-CC_BY]
 ![Creative Common Logo][Logo-CC_BY]
 
 © 2016, 2017  James W. Barnett;
-© 2017 - 2021 Ralf Zerres
+© 2017 - 2023 Ralf Zerres
