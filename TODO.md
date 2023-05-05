@@ -7,9 +7,9 @@
   * iterate oval available incremental snapshots
 - dsnap-sync: restore btrfs snapshot from snapshot backups
   * $ssh btrfs send `<snapshot_path>/<snapshot-id>/snapshot_ro` | btrfs receive `/<btrfs-restore-dir>/`
-    (`recieved_uuid` attribte of `<btrfs-restore-dir>/snapshot_ro` will be imported from `<snapshot_path>/<snapshot-id>/snapshot_ro`)
+	(`recieved_uuid` attribte of `<btrfs-restore-dir>/snapshot_ro` will be imported from `<snapshot_path>/<snapshot-id>/snapshot_ro`)
   * btrfs sub snap `<btrfs-restore-dir>/snapshot_ro` `<btrfs-restore-dir>/snapshot_rw`
-    (create a writable `snapshot_rw`; its attibute `received_uuid` isn't set anymore)
+	(create a writable `snapshot_rw`; its attibute `received_uuid` isn't set anymore)
   * sub delete `<btrfs-restore-dir>/snapshot_ro`
   now you are able to mount the snapshot for further processing
 - dsnap-sync: parallel tasks per config
@@ -50,7 +50,7 @@
 - download Source code (zip-file | tar.gz file) to local dir
 - on local dir
   * gpg --sign-with `<secret package-signing-key id>`
-    --armor
+	--armor
 	--detach-sign dsnap-sync-`<tag>`.tar.gz
 - on github: create/edit release
   * attach binaries by dropping them here or `selecting them`
