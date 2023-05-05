@@ -4,14 +4,14 @@
 
 - dsnap-sync: restore btrfs-streams from archive backups
   * find last full
-  * iterate oval available incremental snapshots
+  * iterate over available incremental snapshots
 - dsnap-sync: restore btrfs snapshot from snapshot backups
   * $ssh btrfs send `<snapshot_path>/<snapshot-id>/snapshot_ro` | btrfs receive `/<btrfs-restore-dir>/`
 	(`recieved_uuid` attribte of `<btrfs-restore-dir>/snapshot_ro` will be imported from `<snapshot_path>/<snapshot-id>/snapshot_ro`)
   * btrfs sub snap `<btrfs-restore-dir>/snapshot_ro` `<btrfs-restore-dir>/snapshot_rw`
 	(create a writable `snapshot_rw`; its attibute `received_uuid` isn't set anymore)
   * sub delete `<btrfs-restore-dir>/snapshot_ro`
-  now you are able to mount the snapshot for further processing
+    now you are able to mount the snapshot for further processing
 - dsnap-sync: parallel tasks per config
 - consider mbuffer for splitting up btrfs streams
 

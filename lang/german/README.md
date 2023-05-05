@@ -1,5 +1,5 @@
 <!-- dsnap-sync README.md -->
-<!-- version: 0.6.6 -->
+<!-- version: 0.6.8 -->
 
 # dsnap-sync
 
@@ -190,6 +190,7 @@ Software Paket Manager.
 		  --label-running <desc>  snapper description tagging active jobs. Default: "dsnap-sync in progress"
 		  --label-synced <desc>   snapper description tagging last synced jobs.
 								  Default: "dsnap-sync last incremental"
+          --calculate-btrfs-size  Enable calculation of sync-size for given snapshots
 		  --color                 Enable colored output messages
 	  -c, --config <config>       Specify the snapper configuration to use. Otherwise will perform for each snapper
 								  configuration. You can select multiple configurations
@@ -423,4 +424,4 @@ Diese Arbeit ist unter der [Creative Common License 4.0][License-CC_BY] lizensie
 ![Creative Common Logo][Logo-CC_BY]
 
 © 2016, 2017  James W. Barnett;
-© 2017 - 2021 Ralf Zerres
+© 2017 - 2023 Ralf Zerres
