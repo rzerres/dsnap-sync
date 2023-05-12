@@ -39,7 +39,7 @@
 # pair of systemd service and timer-units.
 
 progname="${0##*/}"
-version="0.6.8"
+version="0.6.9"
 
 # global variables
 args=
@@ -778,24 +778,31 @@ get_snapper_last_sync_id () {
     fi
 
     snapper_sync_id=0
-    cmd="stat --format %i $snapper_config_dir/$snapper_config 2>/dev/null"
     if [ ${#remote_host} -ge 1 ]; then
         run_ssh="$ssh"
     fi
 
-    # only process, if config does exist
-    if  [ $(eval "$run_ssh" "$cmd") -eq 1 ]; then
+    # only process, if snapper config file does exist
+    # return value for 'cmd':
+    #   0 -> filepath is valid
+    #   1 -> filepath does not exist
+    cmd="stat --format %n $snapper_config_dir/$snapper_config 2>/dev/null"
+    #printf "${MAGENTA}Check for given snapper config ${GREEN}'%s'${MAGENTA} (remote host: ${GREEN}'%s'${MAGENTA}).${NO_COLOR}\n" \
+    #       "$cmd" "$remote_host"
+    if  [ ! $(eval "$run_ssh" "$cmd") ]; then
         if [ "$verbose" -ge 3 ]; then
             if [ "${#remote_host}" -ge 1 ]; then
                 printf "${MAGENTA}snapper config ${GREEN}'%s'${MAGENTA} on remote ${GREEN}'%s'${MAGENTA} does not exist yet.${NO_COLOR}\n" \
                        "$snapper_config" "$remote_host"
             else
-                printf "${MAGENTA}snapper config ${GREEN}'%s'${MAGENTA} does not exist yet.${NO_COLOR}\n" \
+                printf "${MAGENTA}snapper config ${GREEN}'%s'${MAGENTA} on source host does not exist.${NO_COLOR}\n" \
                        "$snapper_config"
             fi
         fi
         return 1
     fi
+
+    # filter sync process id
     if [ "${#snapper_subvolid}" -ge 1 ] && [ "${#snapper_uuid}" -ge 1 ]; then
         cmd="snapper --config $snapper_config list --type single \
              | awk '/$snapper_description/' \
@@ -1528,7 +1535,7 @@ run_config_preparation () {
             fi
 
             # get latest successfully finished snapshot on source
-            # WIP: metadata from last snapshot!
+            # WIP: parse metadata from last snapshot!
             case "$snapper_backup_type" in
             btrfs-snapshot)
                 get_snapper_last_sync_id "snapper_config=${selected_config}" "snapper_description=${snap_description_synced}" \
@@ -1559,30 +1566,30 @@ run_config_preparation () {
             if [ "$verbose" -ge 2 ]; then
                 printf "${MAGENTA}No previous synced snapshot available for snapper config ${GREEN}'%s'${MAGENTA}...${NO_COLOR}\n" \
                        "$selected_config"
-        fi
+            fi
 
-           snapper_target_sync_id=0
+            snapper_target_sync_id=0
             snapper_source_sync_snapshot='none'
             snapper_target_sync_snapshot='none'
-                backup_root="$selected_target/$backupdir/$snapper_target_config"
+            backup_root="$selected_target/$backupdir/$snapper_target_config"
         else
-            # Set snapshot-path for source
+            # Set snapper snapshot-path for source
             get_snapper_config_value "remote=" \
                                      "snapper_config=$snapper_config_dir/$selected_config" \
                                      "config_key=SUBVOLUME"
             if [ $? -eq 0 ]; then
-                        if [ "$value" = "/" ]; then
-                            snapper_source_sync_snapshot="/.snapshots/$snapper_source_sync_id/$snapper_snapshot_name"
-                        else
-                            snapper_source_sync_snapshot="$value/.snapshots/$snapper_source_sync_id/$snapper_snapshot_name"
-            fi
+                if [ "$value" = "/" ]; then
+                    snapper_source_sync_snapshot="/.snapshots/$snapper_source_sync_id/$snapper_snapshot_name"
+                else
+                    snapper_source_sync_snapshot="$value/.snapshots/$snapper_source_sync_id/$snapper_snapshot_name"
                 fi
-                if [ "$verbose" -ge 2 ]; then
+            fi
+            if [ "$verbose" -ge 2 ]; then
                 printf "${MAGENTA}Last synced ${GREEN}source snapshot${MAGENTA} for snapper config ${GREEN}'%s'${MAGENTA} is ${GREEN}'%s'${MAGENTA} ...${NO_COLOR}\n" \
                        "$selected_config" "$snapper_sync_id"
             fi
 
-            # verfiy target
+            # get latest successfully finished snapshot on target
             case "$snapper_backup_type" in
                 btrfs-archive)
                     # set snapper_target_sync_id
@@ -1599,14 +1606,17 @@ run_config_preparation () {
                     ;;
             esac
             if [ $? -eq 0 ]; then
-                    snapper_target_sync_id="$snapper_sync_id"
+                snapper_target_sync_id="$snapper_sync_id"
             else
                 snapper_target_sync_id=0
             fi
 
-            # check for corresponding source and target sync id's
-            snapper_common_sync_id=0
+            # if source and target sync id's do not match:
+	    # check for last common sync id's
+
             if [ "$snapper_target_sync_id" -ne "$snapper_source_sync_id" ]; then
+                snapper_common_sync_id=0
+
                 # select commen sync id
                 get_snapper_sync_id "snapper_config=${selected_config}" "remote="
                 if [ $? -eq 0 ]; then
@@ -1626,7 +1636,9 @@ run_config_preparation () {
                     # no commen sync id found
                     snapper_target_sync_id=0
                 fi
-            fi
+            else
+                snapper_common_sync_id=$snapper_source_sync_id
+	    fi
 
             if [ "$snapper_target_sync_id" -eq 0 ]; then
                 if [ "$verbose" -ge 2 ]; then
@@ -1652,20 +1664,20 @@ run_config_preparation () {
                                     printf "${MAGENTA}backupdir on remote '%s': ${GREEN}'%s'${NO_COLOR}\n" \
                                            "$remote" "$backupdir"
                                 fi
-                        fi
-                        # set target sync_snapshot path
-                        get_snapper_config_value "remote=$remote" \
+                            fi
+                            # set target sync_snapshot path
+                            get_snapper_config_value "remote=$remote" \
                                                      "snapper_config=$snapper_config_dir/$snapper_target_config" \
-                                                 "config_key=SUBVOLUME"
-                        if [ $? -eq 0 ]; then
+                                                     "config_key=SUBVOLUME"
+                            if [ $? -eq 0 ]; then
                                 backup_root="$value"
                                 snapper_target_sync_snapshot="$value"/.snapshots/"$snapper_target_sync_id"/"$snapper_snapshot_name"
-                        fi
-                        # commandline settings for backupdir on selected_target will have priority
-                        if  [ "$backup_root" != "$selected_target/$backupdir" ]; then
+                            fi
+                            # commandline settings for backupdir on selected_target will have priority
+                            if  [ "$backup_root" != "$selected_target/$backupdir" ]; then
                                 backup_root="$selected_target"/"$backupdir"/"$snapper_target_config"
                                 snapper_target_sync_snapshot="$backup_root"/.snapshots/"$snapper_target_sync_id"/"$snapper_snapshot_name"
-                        fi
+                            fi
                             if [ "$verbose" -ge 3 ]; then
                                 if [ "$remote" ]; then
                                         printf "${MAGENTA}backup_root on remote '%s': ${GREEN}'%s'${NO_COLOR}\n" \
@@ -1678,12 +1690,12 @@ run_config_preparation () {
                         ;;
                     *)
                         # use snapper_target_snapshot
-                            backup_root="$selected_target"/"$backupdir"/"$snapper_target_config"
+                        backup_root="$selected_target"/"$backupdir"/"$snapper_target_config"
                         ;;
                 esac
 
-                    if [ "$verbose" -ge 2 ]; then
-                        if [ "$remote" ]; then
+                if [ "$verbose" -ge 2 ]; then
+                    if [ "$remote" ]; then
                         printf "${MAGENTA}Last synced ${GREEN}target snapshot${MAGENTA} for snapper config ${GREEN}'%s'${MAGENTA} on remote '%s' is ${GREEN}'%s'${NO_COLOR}\n" \
                                "$snapper_target_config" "$remote" "$snapper_target_sync_id"
                     else
@@ -1876,8 +1888,9 @@ run_backup () {
                    || [ "$snapper_target_sync_id" -eq 0 ] \
                    || [ "$backup_mode" = "full" ] ; then
 
-                # get size of stream that needs to be transfered
+                # send full snapshot to target
                 if [ $calculate_btrfs_size -eq 1 ]; then
+                    # get size of stream that needs to be transfered
                     check_transfer_size "source_snapshot=$snapper_source_snapshot"
                 fi
 
@@ -1914,7 +1927,6 @@ run_backup () {
                         ;;
                 esac
 
-                # send full snapshot to target
                 if [ "$verbose" -ge 2 ]; then
                     if [ ${#transfer_size} -gt 0 ]; then
                         printf "${MAGENTA}Sending ${GREEN}snapshot${NO_COLOR} for snapper config ${GREEN}'%s' ${MAGENTA}(id='${GREEN}%s${MAGENTA}', size='${GREEN}%s${MAGENTA}')${NO_COLOR} ...\n" \
@@ -1938,7 +1950,7 @@ run_backup () {
                     continue
                 fi
             else
-                # source holds synced snapshots
+                # send incremental snapshot to target, since source holds synced snapshots
                 if [ "$verbose" -ge 3 ]; then
                     printf "New ${GREEN}source${NO_COLOR} snapshot id: ${GREEN}'%s'${NO_COLOR} (path: ${GREEN}'%s'${NO_COLOR})\n" \
                            "$snapper_source_id" "$snapper_source_snapshot"
@@ -1957,10 +1969,10 @@ run_backup () {
                 fi
 
                 # verify that we have a matching source and target snapshot-id
-                if [ "$snapper_common_sync_id" -eq 0 ]; then
+                #if [ "$snapper_common_sync_id" -eq 0 ]; then
                     if [ "$snapper_source_id" -eq "$snapper_target_sync_id" ]; then
                         # nothing to do, snapshot already in sync
-                        if [ "$verbose" -ge 3 ]; then
+                        if [ "$verbose" -ge 2 ]; then
                             printf "${MAGENTA}Nothing to do! Source and target snapshot (id: ${GREEN}'%s'${MAGENTA}) are in sync.${NO_COLOR}\n" \
                                    "$snapper_target_sync_id"
                         fi
@@ -1973,7 +1985,7 @@ run_backup () {
                             get_snapper_sync_id "snapper_config=${snapper_source_config}" "remote="
                             if [ $? -eq 0 ]; then
                                 snapper_source_sync_id="$snapper_sync_id"
-                                snapper_source_sync_snapshot="$SUBVOLUME"/.snapshots/"$snapper_sync_id"/"$snapper_snapshot_name"
+                                snapper_source_sync_snapshot="$SUBVOLUME/.snapshots/$snapper_sync_id/$snapper_snapshot_name"
                             else
                                 printf "${RED}Error: ${MAGENTA}No common sync id found. Aborting backup for config ${GREEN}'%s'${NO_COLOR}\n"
                                 error_count=$((error_count+1))
@@ -1990,18 +2002,20 @@ run_backup () {
                         snapper_common_sync_id="$snapper_source_id"
                         snapper_common_sync_snapshot="$snapper_source_sync_snapshot"
                     fi
-                else
-                    # we have a common sync_id
-                    if [ "$snapper_source_sync_id" != "$snapper_target_sync_id" ]; then
-                        # btrfs send: use common sync_id as a valid parent
-                        snapper_source_sync_id="$snapper_common_sync_id"
-                        snapper_source_sync_snapshot="$SUBVOLUME"/.snapshots/"$snapper_source_sync_id"/"$snapper_snapshot_name"
-                    fi
-                fi
+                #else
+                #    # we have a common sync_id
+                #    if [ "$snapper_source_sync_id" != "$snapper_target_sync_id" ]; then
+                #        # btrfs send: use common sync_id as a valid parent
+                #        snapper_source_sync_id="$snapper_common_sync_id"
+                #        snapper_source_sync_snapshot="$SUBVOLUME/.snapshots/$snapper_source_sync_id/$snapper_snapshot_name"
+                #    fi
+                #fi
 
-                cmd="stat --format %i $snapper_source_snapshot 2>/dev/null"
-                ret=$(eval "$cmd")
-                if [ $? -eq 0 ]; then
+                # return value for 'cmd'
+		# 256 -> valid btrfs snapshot
+		# ''  -> snapshot does not exits
+	       	cmd="stat --format %i $snapper_source_snapshot 2>/dev/null"
+		if [ "$(eval "$cmd")" -eq 256 ]; then
                     # get size of stream that needs to be transfered
                     if [ "$calculate_btrfs_size" -eq 1 ]; then
 			    check_transfer_size "source_snapshot=$snapper_source_snapshot" "clone_snapshot=$snapper_common_sync_snapshot"
@@ -2045,8 +2059,7 @@ run_backup () {
 
                     # TODO: handle error if snapshot already exists
                     # cmd="$ssh stat --format %i $snapper_target_snapshot 2>/dev/null"
-                    # ret=$(eval "$cmd")
-                    # if [ $? -eq 1 ]; then
+		    # if [ "$(eval "$cmd")" -eq 256 ]; then
                     #   printf "${RED}Error: ${MAGENTA}target snapshot ${GREEN}'%i'${MAGENTA} already exists.${NO_COLOR}\n"
                     #   printf "${GREEN}btrfs command:${NO_COLOR} '%s'\n" "$cmd"
                     # fi
