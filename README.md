@@ -1,5 +1,5 @@
 <!-- dsnap-sync README.md -->
-<!-- version: 0.6.8 -->
+<!-- version: 0.6.9 -->
 
 # dsnap-sync
 
