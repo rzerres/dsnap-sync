@@ -1415,7 +1415,7 @@ parse_params () {
             nc -w 3 -z "$remote" "$port" > /dev/null || \
                 die "Can't connect to remote host."
         else
-            "$ssh" command -pv sh >/dev/null 2>&1 || \
+            eval "$ssh" command -pv sh >/dev/null 2>&1 || \
             { printf "'remote shell' is not working!\n \
                   Please correct your public authentication and try again.\n" && exit 1; }
         fi
@@ -1896,7 +1896,7 @@ run_backup () {
 
                 # prepare send pipe command
                 create_pv_cmd
-                case "selected_fstype" in
+                case "$selected_fstype" in
                     btrfs)
                         cmd="btrfs send $btrfs_verbose_flag $snapper_source_snapshot 2>$BTRFS_PIPE \
                             | $cmd_pv \
