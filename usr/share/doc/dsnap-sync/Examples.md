@@ -1,5 +1,25 @@
 # Examples
 
+## Snapper configs cache
+
+To integrate already existing snapshop subfolders located on a given
+filesystem, you need to add the snapper config name to the config
+file. Then restart the snapper service to reread the config list.
+
+```
+[root@dwsbackup dsnap-sync]# cat /etc/conf.d/snapper
+## Path: System/Snapper
+
+## Type:        string
+## Default:     ""
+# List of snapper configurations.
+
+#SNAPPER_CONFIGS="root data.dwssrv1 home.dwssrv1 machines.dwssrv1 root.dwssrv1 libvirt.dwssrv1 data2.dwssrv1 lxd.dwssrv1 archiv2.dwssrv1 archiv3.dwssrv1 root.dwssrv2"
+SNAPPER_CONFIGS="root data.dwssrv1"
+
+[root@dwsbackup dsnap-snyc]# systemctl restart snapperd
+```
+
 ## Automounter
 
 `dsnap-sync` will take advantage of systemd automount units to incorporate external,
