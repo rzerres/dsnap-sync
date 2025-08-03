@@ -190,7 +190,7 @@ check_transfer_size () {
                 fi
 
                 if [ "$verbose" -ge 3 ]; then
-                    printf "${MAGENTA}BTRFS qgroup show result: ${GREEN}'%s'\b${NO_COLOR}'%s'\n" \
+                    printf "${MAGENTA}BTRFS Quoata-Group for snapshot show result: ${GREEN}'%s'\b${NO_COLOR}'%s'\n" \
                            "$?" "$transfer_size"
                 fi
 
@@ -267,9 +267,9 @@ cleanup_snapper_failed_ids () {
                                  | awk ' END {print $1} ')
             cmd="snapper --config $selected_config delete"
             if [ "$failed_id_first" -lt "$failed_id_last" ]; then
-                $(eval "$cmd" "$failed_id_first"-"$failed_id_last")
+                eval "$cmd" "$failed_id_first"-"$failed_id_last"
             else
-                $(eval "$cmd" "$failed_id_first")
+                eval "$cmd" "$failed_id_first"
             fi
         fi
     fi
@@ -594,7 +594,7 @@ get_disk_infos () {
             disk_subvolid_match="$i"
             disk_subvolid_match_count=$((disk_subvolid_match_count+1))
         fi
-        $(eval "fs_options_$i='$fs_option'")
+        eval "fs_options_$i='$fs_option'"
         i=$((i+1))
     done
 }
@@ -789,7 +789,7 @@ get_snapper_last_sync_id () {
     cmd="stat --format %n $snapper_config_dir/$snapper_config 2>/dev/null"
     #printf "${MAGENTA}Check for given snapper config ${GREEN}'%s'${MAGENTA} (remote host: ${GREEN}'%s'${MAGENTA}).${NO_COLOR}\n" \
     #       "$cmd" "$remote_host"
-    if  [ ! $(eval "$run_ssh" "$cmd") ]; then
+    if  [ ! "$(eval "$run_ssh" "$cmd")" ]; then
         if [ "$verbose" -ge 3 ]; then
             if [ "${#remote_host}" -ge 1 ]; then
                 printf "${MAGENTA}snapper config ${GREEN}'%s'${MAGENTA} on remote ${GREEN}'%s'${MAGENTA} does not exist yet.${NO_COLOR}\n" \
@@ -1269,7 +1269,7 @@ parse_params () {
                 snapper_config_postfix="${1#*=}"
                 shift
                 ;;
-            --calculate-btrfs_size=*)
+            --calculate-btrfs-size=*)
                 case ${1#*=} in
                     yes | Yes | True | true)
                         calculate_btrfs_size=1;
@@ -2072,7 +2072,7 @@ run_backup () {
                     #   printf "${GREEN}btrfs command:${NO_COLOR} '%s'\n" "$cmd"
                     # fi
 
-                    $(eval "$cmd")
+                    eval "$cmd"
                     ret=$?
                     case "$ret" in
                         0)
@@ -2133,7 +2133,7 @@ run_backup () {
                     printf "${MAGENTA}cmd: ${GREEN}'%s'${NO_COLOR}\n" \
                            "$cmd"
                 fi
-                $(eval "$cmd") 1>/dev/null
+                eval "$cmd" 1>/dev/null
             fi
         else
             printf "${MAGENTA}dryrun${NO_COLOR}: Would copy info metadata '%s' to target.\n"  \
@@ -2260,7 +2260,7 @@ run_finalize () {
             printf "${MAGENTA}Kill running ${GREEN}snapperd${MAGENTA} on target id: ${GREEN}'%s'${NO_COLOR} ...\n" \
                    "$snapperd_pid"
         fi
-        $(eval "$ssh" killall -SIGTERM snapperd 2>/dev/null)
+        eval "$ssh" killall -SIGTERM snapperd 2>/dev/null
 
         if [ "$verbose" -ge 3 ]; then
             printf "${MAGENTA}Identify snapper id ${GREEN}'%s'${MAGENTA} on target for configuration ${GREEN}'%s'${NO_COLOR} ...\n" \
@@ -2285,7 +2285,7 @@ run_finalize () {
                     fi
                     ret=$(eval "$cmd")
                     if [ "$verbose" -ge 3 ]; then
-                        printf "return: '%s'\n" "$?"
+                        printf "return: '%s'\n" "$ret"
                     fi
                     sync
 
@@ -2903,7 +2903,7 @@ Options:
      --label-running <desc>  snapper description tagging active jobs. Default: "dsnap-sync in progress"
      --label-synced <desc>   snapper description tagging last synced jobs
                              Default: "dsnap-sync last incremental"
-     --calculate-btrfs_size  Enable calculation of sync-size for given btrfs snapshots
+     --calculate-btrfs-size  Enable calculation of sync-size for given btrfs snapshots
      --color                 Enable colored output messages
  -c, --config <config>       Specify <multiple> snapper configurations.
                              Default: Perform snapshots for each available snapper configuration.
