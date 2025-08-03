@@ -168,8 +168,10 @@ check_transfer_size () {
                            "$source_snapshot"
                 fi
             fi
+
+            # btrfs quotas are expensive and should not be activated if you handle bigger numbers of snapshots
             if [ $btrfs_quota -eq 1 ]; then
-                # qgroup for given path, exclude ancestrals
+                # use qgroup for given path, exclude ancestrals
                 # qgroup identifiers conform to level/id where level 0 is reserved to the qgroups associated with subvolumes
                 transfer_size=$(btrfs qgroup show -f --raw "$source_snapshot" 2>/dev/null \
                                                    | awk 'FNR>2 {print $2}')
@@ -205,6 +207,8 @@ check_transfer_size () {
                 # should we disable quota usage again?
                 if [ "$btrfs_quota_tmp" -eq 1 ]; then btrfs quota disable "$source_snapshot"; fi
             else
+                # no quota: get an aproximated value for the transfer_size
+                # - not accurate, but inexpensive
                 if [ ${#clone_snapshot} -gt 0 ]; then
                     # WIP: dry run with btrfs send
                     # need to substitue btrfs 'x.yyGiB' suffix, since pv will need 'xG'
@@ -212,12 +216,9 @@ check_transfer_size () {
                                         | pv -f 2>&1 >/dev/null \
                                         | awk -F ' ' '{ gsub(/.[0-9][0-9]MiB/,"M"); gsub(/.[0-9][0-9]GiB/,"G"); print $1 }' )
                 else
-                    # filesystem size
-                    transfer_size=$(du --one-file-system --summarize "$snapper_source_snapshot" 2>/dev/null \
-                                        | awk -F ' ' '{print $1}')
-                    if [ "$transfer_size" -ge 1048576 ]; then
-                        transfer_size=$(($transfer_size / 1024 / 1024))G
-                    fi
+                    # btrfs calculated filesystem size (--si: use 1000 as a base (kB, MB, GB, TB)
+                    transfer_size=$(btrfs filesystem df --si --gbytes "$snapper_source_snapshot" 2>/dev/null \
+                                    | awk -F '=' 'NR==1 {gsub(/.[0-9][0-9]kB/,"K"); gsub(/.[0-9][0-9]MB/,"M"); gsub(/.[0-9][0-9]GB/,"G"); gsub(/.[0-9][0-9]TB/,"T"); print $3} ')
                 fi
                 if [ "$verbose" -ge 2 ]; then
                     printf "${MAGENTA}BTRFS transfer size for ${GREEN}source snapshot${MAGENTA}: size=${GREEN}'%s'${NO_COLOR} ...\n" \
@@ -231,7 +232,6 @@ check_transfer_size () {
                    "$snapper_source_id"
         fi
     fi
-
 }
 
 cleanup_snapper_failed_ids () {
@@ -1121,8 +1121,8 @@ parse_params () {
                 backuptype_cmdline="$2"
                 shift 2
                 ;;
-            --calculate-btrfs_size)
-                calulate_size=1
+            --calculate-btrfs-size)
+                calculate_btrfs_size=1
                 shift 1
                 ;;
             -c|--config)
@@ -1896,6 +1896,10 @@ run_backup () {
 
                 # prepare send pipe command
                 create_pv_cmd
+                if [ "$verbose" -ge 3 ]; then
+                    printf "${MAGENTA}Selected Filesystem tye: ${GREEN}'%s'${NO_COLOR}\n" \
+                           "$selected_fstype"
+                fi
                 case "$selected_fstype" in
                     btrfs)
                         cmd="btrfs send $btrfs_verbose_flag $snapper_source_snapshot 2>$BTRFS_PIPE \
