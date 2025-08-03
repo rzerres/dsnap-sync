@@ -49,7 +49,7 @@ batch=0
 btrfs_quota=0
 btrfs_quota_tmp=1
 btrfs_verbose_flag=
-calculate_btrfs_size=0
+calculate_btrfs_size=1
 color=0
 donotify=0
 dryrun=0
@@ -1940,13 +1940,17 @@ run_backup () {
                                "$selected_config"
                     fi
                 fi
+
                 # the actual data sync to the target
                 # this may take a while, depending on datasize and line-speed
                 if [ "$verbose" -ge 3 ]; then
                     printf "cmd: '%s'\n" "$cmd"
                 fi
-                $(eval "$cmd")
-                if [ "$?" -gt 0 ]; then
+                ret=$(eval "$cmd")
+                if [ "$verbose" -ge 3 ]; then
+                    printf "cmd returned: '%s' \n" "$ret"
+                fi
+                if [ "$ret" -gt 0 ]; then
                     printf "${RED}BTRFS_PIPE: %s${NO_COLOR}\n" "$(cat <"$BTRFS_PIPE")"
                     error_count=$((error_count+1))
                     # go for next configuration
