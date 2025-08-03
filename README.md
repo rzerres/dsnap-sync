@@ -1,5 +1,5 @@
 <!-- dsnap-sync README.md -->
-<!-- version: 0.6.9 -->
+<!-- version: 0.6.10 -->
 
 # dsnap-sync
 
@@ -389,4 +389,4 @@ This work is licensed under a [Creative Common License 4.0][License-CC_BY]
 ![Creative Common Logo][Logo-CC_BY]
 
 © 2016, 2017  James W. Barnett;
-© 2017 - 2023 Ralf Zerres
+© 2017 - 2025 Ralf Zerres
